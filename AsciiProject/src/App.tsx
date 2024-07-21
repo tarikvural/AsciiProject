@@ -7,6 +7,7 @@ function App() {
   const AsciiChars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,^`'. "
   const [imageSrc, setImageSrc] = useState('')
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  let pixelArray = [{r: 0, g: 0, b: 0, a: 0}];
 
   function handleInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
     if (!event.target.files) return
@@ -21,9 +22,10 @@ function App() {
   function convertToAscii() {
     if(!canvasRef.current) return;
     const AsciiArray = AsciiChars.split('');
-    AsciiArray.forEach((char) => {
-      console.log(char);
-    })
+    const ctx = canvasRef.current.getContext('2d');
+    if(!ctx) return;
+    const imgData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    console.log(imgData.data.length)
   }
 
   return (
