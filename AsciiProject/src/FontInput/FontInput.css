@@ -1,0 +1,21 @@
+#font-input{
+    width: 70px;
+    font-size: 2rem;
+  }
+  
+  .input-group > * {
+    margin-top: 0 !important;
+  }
+  
+  .input-group input {
+    margin-top: 0.7rem !important;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    justify-content: space-evenly !important;
+    font-size: 2rem;
+    gap: 40px;
+  }

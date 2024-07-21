@@ -3,6 +3,7 @@ import './App.css'
 import ImageInput from './ImageInput/ImageInput'
 import DrawArea from './DrawArea/DrawArea'
 import CharacterSizeArea from './CharacterSizeArea/CharacterSizeArea';
+import FontInput from './FontInput/FontInput'
 
 function App() {
   const asciiChars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ".split('').reverse();
@@ -12,7 +13,7 @@ function App() {
   const [canvasHeight, setCanvasHeight] = useState<number>(0);
   const [cellWidth, setCellWidth] = useState<number>(10);
   const [cellHeight, setCellHeight] = useState<number>(10);
-  const [fontSize, setFontSize] = useState<number>(8);
+  const [fontSize, setFontSize] = useState<number>(6);
   
   function handleInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
     if (!event.target.files) return;
@@ -96,6 +97,11 @@ function App() {
     }
   }
 
+  const handleFontSizeChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newSize = Number(event.target.value);
+    setFontSize(newSize);
+  };
+
   return (
     <>
       <h1 id='title'>ASCII Art Generator</h1>
@@ -109,10 +115,8 @@ function App() {
         <ImageInput onChange={handleInputChanged}/>
         <button className='button' onClick={convertToAscii} id='convertButton'>Convert to ASCII</button>
       </div>
-      <div className='input-group'>
-        <label htmlFor='font-input'>Font size</label>
-        <input type='number' id='font-input'/>
-      </div>
+      <FontInput fontSize={fontSize} onFontSizeChanged={handleFontSizeChanged}>
+      </FontInput>
       <CharacterSizeArea 
         usedCharacters={asciiChars} 
         onSizeChange={handleSizeChange}
