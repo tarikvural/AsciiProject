@@ -1,28 +1,33 @@
 import './DrawArea.css';
 import { useEffect} from 'react';
 
-const DrawArea = ({ imageSrc, canvasRef }: { imageSrc: string,  canvasRef: React.RefObject<HTMLCanvasElement>}) => {
+interface drawAreaProps {
+    image: HTMLImageElement | null;
+    canvasRef: React.RefObject<HTMLCanvasElement>;
+    canvasWidth: number;
+    canvasHeight: number;
+}
+
+const DrawArea = ({ image, canvasRef, canvasWidth, canvasHeight }: drawAreaProps) => {
 
 
     useEffect(() => {
-        if (imageSrc) {
+        if (image) {
+            console.log('my image was changed');
             const canvas = document.getElementById('canvas') as HTMLCanvasElement;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
-            const img = new Image();
-            img.src = imageSrc;
-
-            img.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, 0, 0);
         }
-    }, [imageSrc]);
+    }, [image,canvasWidth, canvasHeight]);
 
     return (
         <>
             <div className="draw-area">
-                <canvas ref={canvasRef} id="canvas" width='600' height='600'></canvas>
+                <canvas ref={canvasRef} id="canvas" width={canvasWidth} height={canvasHeight}></canvas>
             </div>
         </>
     )   

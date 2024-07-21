@@ -5,19 +5,32 @@ import DrawArea from './DrawArea/DrawArea'
 import CharacterSizeArea from './CharacterSizeArea/CharacterSizeArea';
 
 function App() {
-  const AsciiChars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,^`'. ".split('');
-  const [imageSrc, setImageSrc] = useState('')
+  const asciiChars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ".split('').reverse();
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [cellWidth, setCellWidth] = useState<number>(0);
-  const [cellHeight, setCellHeight] = useState<number>(0);
+  const [canvasWidth, setCanvasWidth] = useState<number>(0);
+  const [canvasHeight, setCanvasHeight] = useState<number>(0);
+  const [cellWidth, setCellWidth] = useState<number>(10);
+  const [cellHeight, setCellHeight] = useState<number>(10);
+  const [fontSize, setFontSize] = useState<number>(8);
   
   function handleInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
-    if (!event.target.files) return
-    const fileRead = new FileReader()
+    if (!event.target.files) return;
+    
+    const fileRead = new FileReader();
     fileRead.readAsDataURL(event.target.files[0]);
 
     fileRead.onload = () => {
-      setImageSrc(fileRead.result as string)
+      const img = new Image();
+      img.src = fileRead.result as string;
+
+      img.onload = () => {
+        if (canvasRef.current) {
+          setImage(img);
+          setCanvasWidth(img.width);
+          setCanvasHeight(img.height);
+        }
+      }
     }
   }
 
@@ -28,92 +41,83 @@ function App() {
   }, []);
 
   function convertToAscii() {
-    console.log('Convert to ASCII called');
-    console.log('Cell dimensions:', cellWidth, cellHeight);
-
-    if (!canvasRef.current) {
-      console.log('Canvas ref is null');
-      return;
-    }
+    if (!canvasRef.current) return;
 
     const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) {
-      console.log('Could not get 2D context');
-      return;
-    }
+    if (!ctx) return;
 
     const canvasWidth = canvasRef.current.width;
     const canvasHeight = canvasRef.current.height;
 
     console.log('Canvas dimensions:', canvasWidth, canvasHeight);
 
-    if (cellWidth === 0 || cellHeight === 0) {
-      console.log('Cell dimensions are zero');
-      return;
-    }
+    if (cellWidth === 0 || cellHeight === 0) return;
 
-    const rows = Math.floor(canvasHeight / cellHeight);
     const columns = Math.floor(canvasWidth / cellWidth);
-
-    console.log('Grid:', rows, 'rows by', columns, 'columns');
+    const rows = Math.floor(canvasHeight / cellHeight);
 
     const imgData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-    const grayScaleData = new Uint8ClampedArray(imgData.data);
-
-    // Convert to grayscale
-    for (let i = 0; i < grayScaleData.length; i += 4) {
-      const luminance = 0.299 * grayScaleData[i] + 0.587 * grayScaleData[i+1] + 0.114 * grayScaleData[i+2];
-      grayScaleData[i] = grayScaleData[i+1] = grayScaleData[i+2] = luminance;
-    }
+    const pixelData = imgData.data;
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.fillStyle = 'black';
-    ctx.font = `${cellHeight}px "Courier Prime", monospace`;
+    ctx.font = `${fontSize}px monospace`;
+    ctx.textBaseline = 'top';
 
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < columns; col++) {
-        let blockLuminance = 0;
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctx.fillStyle = "white";
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < columns; x++) {
+        let totalBrightness = 0;
         let pixelCount = 0;
 
-        // Calculate average luminance for each cell block
-        for (let y = 0; y < cellHeight; y++) {
-          for (let x = 0; x < cellWidth; x++) {
-            const pixelX = col * cellWidth + x;
-            const pixelY = row * cellHeight + y;
-            
+        for (let cellY = 0; cellY < cellHeight; cellY++) {
+          for (let cellX = 0; cellX < cellWidth; cellX++) {
+            const pixelX = x * cellWidth + cellX;
+            const pixelY = y * cellHeight + cellY;
+
             if (pixelX < canvasWidth && pixelY < canvasHeight) {
-              const index = (pixelY * canvasWidth + pixelX) * 4;
-              blockLuminance += grayScaleData[index];
+              const i = (pixelY * canvasWidth + pixelX) * 4;
+              const r = pixelData[i];
+              const g = pixelData[i + 1];
+              const b = pixelData[i + 2];
+              const brightness = (r + g + b) / 3;
+              totalBrightness += brightness;
               pixelCount++;
             }
           }
         }
 
-        if (pixelCount > 0) {
-          const averageLuminance = blockLuminance / pixelCount;
-          const charIndex = Math.floor((averageLuminance / 255) * (AsciiChars.length - 1));
-          const asciiChar = AsciiChars[charIndex];
-          
-          ctx.fillText(asciiChar, col * cellWidth, (row + 1) * cellHeight);
-        }
-
-        console.log(`Block (${row}, ${col}): Average Luminance = ${blockLuminance / pixelCount}`);
+        const averageBrightness = totalBrightness / (pixelCount * 255);
+        const asciiIndex = Math.floor((1 - averageBrightness) * (asciiChars.length - 1));
+        const asciiChar = asciiChars[asciiIndex];
+        ctx.fillText(asciiChar, x * cellWidth, y * cellHeight);
       }
     }
-
-    console.log('Conversion complete');
   }
 
   return (
     <>
-      <h1 id='test'>Ascii Art Generator</h1>
-      <CharacterSizeArea 
-        usedCharacters={AsciiChars} 
-        onSizeChange={handleSizeChange}
+      <h1 id='title'>ASCII Art Generator</h1>
+      <DrawArea 
+        image={image} 
+        canvasRef={canvasRef}
+        canvasWidth={canvasWidth}
+        canvasHeight={canvasHeight}
       />
-      <DrawArea imageSrc={imageSrc} canvasRef={canvasRef}/>
-      <ImageInput onChange={handleInputChanged}/>
-      <button onClick={convertToAscii} id='convertButton'>Convert to Ascii</button>
+      <div className='button-group'>
+        <ImageInput onChange={handleInputChanged}/>
+        <button className='button' onClick={convertToAscii} id='convertButton'>Convert to ASCII</button>
+      </div>
+      <div className='input-group'>
+        <label htmlFor='font-input'>Font size</label>
+        <input type='number' id='font-input'/>
+      </div>
+      <CharacterSizeArea 
+        usedCharacters={asciiChars} 
+        onSizeChange={handleSizeChange}
+        fontSize = {fontSize}
+      />
     </>
   )
 }

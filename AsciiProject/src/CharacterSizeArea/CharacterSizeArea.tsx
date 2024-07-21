@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 interface CharacterSizeAreaProps {
   usedCharacters: string[];
   onSizeChange: (width: number, height: number) => void;
+  fontSize: number;
 }
 
-function CharacterSizeArea({ usedCharacters, onSizeChange }: CharacterSizeAreaProps) {
+function CharacterSizeArea({ usedCharacters, onSizeChange, fontSize }: CharacterSizeAreaProps) {
     const [textWidth, setTextWidth] = useState<number>(0);
     const [textHeight, setTextHeight] = useState<number>(0);
 
@@ -15,7 +16,7 @@ function CharacterSizeArea({ usedCharacters, onSizeChange }: CharacterSizeAreaPr
         if (!ctx) return;
 
         document.fonts.ready.then(() => {
-            ctx.font = '12px "Courier Prime", monospace';
+            ctx.font = `${fontSize}px "Courier Prime", monospace`;
             ctx.fillStyle = 'black';
 
             let maxWidth = 0;
@@ -38,8 +39,8 @@ function CharacterSizeArea({ usedCharacters, onSizeChange }: CharacterSizeAreaPr
             <h2>Used Characters</h2>
             <p>{usedCharacters}</p> 
             <p>Number of Characters: {usedCharacters.length}</p>
-            <p>Character Height: {textHeight}</p>
-            <p>Character Width: {textWidth}</p>
+            <p>Maximum Character Height (Height of each Cell): {textHeight}</p>
+            <p>Maximum Character Width (Width of each Cell): {textWidth}</p>
         </>
     );
 }
