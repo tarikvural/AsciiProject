@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 
-function CharacterSizeArea({ usedCharacters }: { usedCharacters: string[] }) {
+interface CharacterSizeAreaProps {
+  usedCharacters: string[];
+  onSizeChange: (width: number, height: number) => void;
+}
+
+function CharacterSizeArea({ usedCharacters, onSizeChange }: CharacterSizeAreaProps) {
     const [textWidth, setTextWidth] = useState<number>(0);
     const [textHeight, setTextHeight] = useState<number>(0);
 
@@ -24,8 +29,9 @@ function CharacterSizeArea({ usedCharacters }: { usedCharacters: string[] }) {
 
             setTextWidth(maxWidth);
             setTextHeight(maxHeight);
+            onSizeChange(maxWidth, maxHeight);
         });
-    }, [usedCharacters]);
+    }, [usedCharacters, onSizeChange]);
 
     return (
         <>

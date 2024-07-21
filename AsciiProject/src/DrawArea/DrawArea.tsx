@@ -22,7 +22,7 @@ const DrawArea = ({ imageSrc, canvasRef }: { imageSrc: string,  canvasRef: React
     return (
         <>
             <div className="draw-area">
-                <canvas ref={canvasRef} id="canvas" width='497' height='500'></canvas>
+                <canvas ref={canvasRef} id="canvas" width='600' height='600'></canvas>
             </div>
         </>
     )   
