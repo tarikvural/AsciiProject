@@ -1,20 +1,20 @@
 import './DrawArea.css';
-import { useEffect } from 'react';
+import { useEffect} from 'react';
 
-const DrawArea = ({ imageSrc }: { imageSrc: string }) => {
+const DrawArea = ({ imageSrc, canvasRef }: { imageSrc: string,  canvasRef: React.RefObject<HTMLCanvasElement>}) => {
+
 
     useEffect(() => {
         if (imageSrc) {
             const canvas = document.getElementById('canvas') as HTMLCanvasElement;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
-            console.log('there was a ctx');
             const img = new Image();
             img.src = imageSrc;
 
             img.onload = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
             };
         }
     }, [imageSrc]);
@@ -22,7 +22,7 @@ const DrawArea = ({ imageSrc }: { imageSrc: string }) => {
     return (
         <>
             <div className="draw-area">
-                <canvas id="canvas" width='400' height='400'></canvas>
+                <canvas ref={canvasRef} id="canvas" width='800' height='800'></canvas>
             </div>
         </>
     )   
