@@ -1,4 +1,4 @@
-#ASCII Art generator
+# ASCII Art generator
 
 Small React Project that converts an image into ASCII art
 
