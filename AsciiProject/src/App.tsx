@@ -42,10 +42,13 @@ function App() {
   }, []);
 
   function convertToAscii() {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !image) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctx.drawImage(image, 0, 0);
 
     const canvasWidth = canvasRef.current.width;
     const canvasHeight = canvasRef.current.height;
@@ -60,7 +63,6 @@ function App() {
     const imgData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
     const pixelData = imgData.data;
 
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.font = `${fontSize}px monospace`;
     ctx.textBaseline = 'top';
 
